@@ -148,7 +148,27 @@ class BibtexLibrary(object):
             if self.abstract[key]:
                 desc += 'The abstract reads: ' + self.abstract[key]
             self.description[key] = desc
-            print(desc)
+
+
+    def to_mp3(self,key=None,overwrite=False,language='en-GB'):
+        from gtts import gTTS
+        if key is None:
+            keylist = self.keys
+        elif isinstance(key,str):
+            keylist = [key]
+        else:
+            assert isinstance(key,list)
+            keylist = key
+        for key in keylist:
+            mp3file = os.path.join(self.mp3dir,'{:s}.mp3'.format(key))
+            if os.path.isfile(mp3file) and (not overwrite):
+                print('File exists, skipping',key)
+                continue
+            assert hasattr(self,'description'), \
+                    'Need to run generate_descriptions'
+            tts = gTTS(text=self.description[key], lang=language, slow=False)
+            print('Writing',mp3file)
+            tts.save(mp3file)
 
 
 #==============================================================================
@@ -158,3 +178,4 @@ if __name__ == '__main__':
         sys.exit('Specify bib file')
     bib = BibtexLibrary(sys.argv[1])
     bib.generate_descriptions()
+    bib.to_mp3()
