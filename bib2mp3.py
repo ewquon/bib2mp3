@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 import os
 import numpy as np
+
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
+
+import html
+from bs4 import BeautifulSoup
 
 class BibtexLibrary(object):
     """Class that processes bibtex file"""
@@ -33,6 +37,9 @@ class BibtexLibrary(object):
 
     def _clean_text(self,s):
         s = s.replace('{','').replace('}','')
+        s = s.replace('~','')
+        s = s.replace('$\\','').replace('$','')
+        s = BeautifulSoup(html.unescape(s),'html.parser').text # get rid of HTML tags
         return s
 
     def _process_bib_authors(self):
@@ -159,11 +166,11 @@ class BibtexLibrary(object):
                     kwstr = ', '.join(kwlist)
                 desc += kwstr + '.'
             if self.abstract[key]:
-                desc += 'The abstract reads: ' + self.abstract[key]
+                desc += ' The abstract reads: ' + self.abstract[key]
             else:
-                desc += 'There is no abstract available.'
+                desc += ' There is no abstract available.'
             self.description[key] = desc
-            print(key,':',desc)
+            #print(key,':',desc)
 
 
     def to_mp3(self,key=None,overwrite=False,language='en-GB'):
