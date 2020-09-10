@@ -135,7 +135,7 @@ class BibtexLibrary(object):
             if self.publication[key]:
                 desc += ' in {:s}.'.format(self.publication[key])
             if self.keywords[key]:
-                desc += ' This publication has the following keywords: '
+                desc += ' Publication keywords include: '
                 kwlist = [kw.strip() for kw in self.keywords[key].split(',')]
                 if kwlist == 1:
                     kwstr = kwlist[0]
@@ -147,6 +147,8 @@ class BibtexLibrary(object):
                 desc += kwstr + '.'
             if self.abstract[key]:
                 desc += 'The abstract reads: ' + self.abstract[key]
+            else:
+                desc += 'There is no abstract available.'
             self.description[key] = desc
 
 
