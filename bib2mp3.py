@@ -13,7 +13,7 @@ class BibtexLibrary(object):
     """Class that processes bibtex file"""
     def __init__(self,
                  bibfile,
-                 mp3dir=os.path.join(os.environ['HOME'],'Music'),
+                 mp3dir=os.path.join(os.environ['HOME'],'Music','bib2mp3'),
                 ):
         parser = BibTexParser(common_strings=True)
         parser.customization = convert_to_unicode
@@ -47,7 +47,10 @@ class BibtexLibrary(object):
         for key,article in zip(self.keys,self.lib):
             authorstr = self._clean_text(article['author'])
             #print(key,authorstr)
-            authorlist = [author.strip() for author in authorstr.split(' and ')]
+            authorlist = [
+                author.strip().replace('.','')
+                for author in authorstr.split(' and ')
+            ]
             #print(key,authorlist)
             authorlist_firstlast = []
             for author in authorlist:
@@ -150,10 +153,10 @@ class BibtexLibrary(object):
                 desc = 'In {:s}, '.format(self.date[key])
             else:
                 desc = ''
-            desc += '{:s} published "{:s}"'.format(self.author[key],
-                                                   self.title[key])
+            desc += '{:s} published a paper entitled: {:s}.'.format(
+                    self.author[key], self.title[key])
             if self.publication[key]:
-                desc += ' in {:s}.'.format(self.publication[key])
+                desc += ' This was published in {:s}.'.format(self.publication[key])
             if self.keywords[key]:
                 desc += ' Publication keywords include: '
                 kwlist = [kw.strip() for kw in self.keywords[key].split(',')]
@@ -169,6 +172,8 @@ class BibtexLibrary(object):
                 desc += ' The abstract reads: ' + self.abstract[key]
             else:
                 desc += ' There is no abstract available.'
+            desc += ' This concludes the summary of the work' \
+                    + ' by {:s}.'.format(self.author[key])
             self.description[key] = desc
             #print(key,':',desc)
 
