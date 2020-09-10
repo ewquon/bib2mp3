@@ -31,10 +31,14 @@ class BibtexLibrary(object):
         self._process_bib_keywords()
         self._process_bib_abstracts()
 
+    def _clean_text(self,s):
+        s = s.replace('{','').replace('}','')
+        return s
+
     def _process_bib_authors(self):
         self.author = {}
         for key,article in zip(self.keys,self.lib):
-            authorstr = article['author']
+            authorstr = self._clean_text(article['author'])
             #print(key,authorstr)
             authorlist = [author.strip() for author in authorstr.split(' and ')]
             #print(key,authorlist)
@@ -60,7 +64,7 @@ class BibtexLibrary(object):
     def _process_bib_titles(self):
         self.title = {}
         for key,article in zip(self.keys,self.lib):
-            self.title[key] = article['title']
+            self.title[key] = self._clean_text(article['title'])
 
     def _process_bib_dates(self):
         self.date = {}
@@ -85,9 +89,12 @@ class BibtexLibrary(object):
         self.publication = {}
         for key,article in zip(self.keys,self.lib):
             if article['ENTRYTYPE'] == 'article':
-                self.publication[key] = article['journal']
+                name = article['journal']
             else:
-                self.publication[key] = article.get('booktitle',None)
+                name = article.get('booktitle',None)
+            if name is not None:
+                name = self._clean_text(name)
+            self.publication[key] = name
         num_missing_pubnames = np.count_nonzero(
             [(n is None) for _,n in self.publication.items()]
         )
@@ -100,7 +107,10 @@ class BibtexLibrary(object):
     def _process_bib_keywords(self):
         self.keywords = {}
         for key,article in zip(self.keys,self.lib):
-            self.keywords[key] = article.get('keywords',None)
+            kw = article.get('keywords',None)
+            if kw is not None:
+                kw = self._clean_text(kw)
+            self.keywords[key] = kw
         num_missing_keywords = np.count_nonzero(
             [(kw is None) for _,kw in self.keywords.items()]
         )
@@ -112,7 +122,10 @@ class BibtexLibrary(object):
     def _process_bib_abstracts(self):
         self.abstract = {}
         for key,article in zip(self.keys,self.lib):
-            self.abstract[key] = article.get('abstract',None)
+            ab = article.get('abstract',None)
+            if ab is not None:
+                ab = self._clean_text(ab)
+            self.abstract[key] = ab
         num_missing_abstracts = np.count_nonzero(
             [(ab is None) for _,ab in self.abstract.items()]
         )
@@ -150,6 +163,7 @@ class BibtexLibrary(object):
             else:
                 desc += 'There is no abstract available.'
             self.description[key] = desc
+            print(key,':',desc)
 
 
     def to_mp3(self,key=None,overwrite=False,language='en-GB'):
