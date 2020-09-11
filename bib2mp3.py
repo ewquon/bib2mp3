@@ -43,7 +43,11 @@ class BibtexLibrary(object):
         s = s.replace('{','').replace('}','')
         s = s.replace('~','')
         s = s.replace('$\\','').replace('$','')
-        s = BeautifulSoup(html.unescape(s),'html.parser').text # get rid of HTML tags
+        # get rid of HTML tags
+        s = BeautifulSoup(html.unescape(s),'html.parser').text
+        # spell out common acronyms
+        s = s.replace('LES','L-E-S')
+        s = s.replace('ALM','A-L-M')
         return s
 
     def _process_bib_authors(self):
@@ -181,7 +185,6 @@ class BibtexLibrary(object):
             desc += ' This concludes the summary of the work' \
                     + ' by {:s}.'.format(self.author[key])
             self.description[key] = desc
-            #print(key,':',desc)
 
 
     def to_mp3(self,key=None,overwrite=False,language='en-GB'):
@@ -211,7 +214,7 @@ class BibtexLibrary(object):
             mp3.tag.album = self.bibname
             mp3.tag.album_artist = 'bib2mp3.py'
             mp3.tag.save()
-            break
+            #print(key,':',self.description[key])
 
 
 #==============================================================================
