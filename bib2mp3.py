@@ -9,6 +9,9 @@ from bibtexparser.customization import convert_to_unicode
 import html
 from bs4 import BeautifulSoup
 
+import eyed3
+
+
 class BibtexLibrary(object):
     """Class that processes bibtex file"""
     def __init__(self,
@@ -17,6 +20,7 @@ class BibtexLibrary(object):
                 ):
         parser = BibTexParser(common_strings=True)
         parser.customization = convert_to_unicode
+        self.bibname = os.path.split(bibfile)[1]
         with open(bibfile) as bib:
             bibdata = bibtexparser.load(bib, parser=parser)
         self.lib = bibdata.entries
@@ -77,12 +81,14 @@ class BibtexLibrary(object):
             self.title[key] = self._clean_text(article['title'])
 
     def _process_bib_dates(self):
+        self.year = {}
         self.date = {}
         for key,article in zip(self.keys,self.lib):
             year = article.get('year',None)
             if year is None:
                 self.date[key] = None
             else:
+                self.year[key] = year
                 self.date[key] = year
             month = article.get('month',None)
             if month is not None:
@@ -197,6 +203,15 @@ class BibtexLibrary(object):
             tts = gTTS(text=self.description[key], lang=language, slow=False)
             print('Writing',mp3file)
             tts.save(mp3file)
+            # add metadata
+            mp3 = eyed3.load(mp3file)
+            mp3.initTag()
+            mp3.tag.artist = self.author[key]
+            mp3.tag.title = self.title[key]
+            mp3.tag.album = self.bibname
+            mp3.tag.album_artist = 'bib2mp3.py'
+            mp3.tag.save()
+            break
 
 
 #==============================================================================
