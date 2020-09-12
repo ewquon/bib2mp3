@@ -55,18 +55,21 @@ tokenizer = Tokenizer([
 def default_tokenizer(text):
     return tokenizer.run(text)
 
-def MyTokenizer(text):
+def MyTokenizer(text,debug=False):
     # first, use the default gTTS tokenizer
     default_tokens = default_tokenizer(text)
     tokens = []
     for i,token in enumerate(default_tokens):
         if len(token) > MAXCHARS:
-            #print(f'Splitting "{token}"') # DEBUG
+            if debug:
+                print('---')
+                print(f'Splitting "{token}"...')
             # first split by ':'
             for phrase in token.split(':'):
                 if len(phrase) <= MAXCHARS:
                     # add token if it's short enough
                     tokens.append(phrase)
+                    if debug: print(phrase)
                 else:
                     # then split into words and tag with parts of speech
                     words = nltk.word_tokenize(phrase)
@@ -75,8 +78,13 @@ def MyTokenizer(text):
                     chunked = chunker.parse(word_tags)
                     # group words to make sure key phrases don't get broken up
                     consolidate(chunked)
+                    if debug:
+                        for token_pos in chunked:
+                            print(' ',token_pos)
                     # add reconstructed tokens that are within the char limit 
                     tokens += reconstruct(chunked)
+            if debug:
+                print(f'Result: "{token}"')
         else:
             tokens.append(token)
     return tokens

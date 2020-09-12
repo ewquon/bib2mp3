@@ -198,7 +198,7 @@ class BibtexLibrary(object):
             self.description[key] = desc
 
 
-    def to_mp3(self,key=None,overwrite=False,language='en-GB'):
+    def to_mp3(self,key=None,overwrite=False,language='en-GB',debug=False):
         from gtts import gTTS
         if key is None:
             keylist = self.keys
@@ -207,16 +207,24 @@ class BibtexLibrary(object):
         else:
             assert isinstance(key,list)
             keylist = key
+        tokefunc = lambda text: MyTokenizer(text,debug=debug)
         for key in keylist:
             mp3file = os.path.join(self.mp3dir,'{:s}.mp3'.format(key))
-            if os.path.isfile(mp3file) and (not overwrite):
-                print('File exists, skipping',key)
-                continue
+            overwriting = False
+            if os.path.isfile(mp3file):
+                if overwrite:
+                    overwriting = True
+                else:
+                    print('File exists, skipping',key)
+                    continue
             assert hasattr(self,'description'), \
                     'Need to run generate_descriptions'
             tts = gTTS(text=self.description[key], lang=language, slow=False,
-                       tokenizer_func=MyTokenizer)
-            print('Writing',mp3file)
+                       tokenizer_func=tokefunc)
+            if overwriting:
+                print('Overwriting',mp3file)
+            else:
+                print('Writing',mp3file)
             tts.save(mp3file)
             # add metadata
             mp3 = eyed3.load(mp3file)
@@ -226,7 +234,7 @@ class BibtexLibrary(object):
             mp3.tag.album = self.bibname
             mp3.tag.album_artist = 'bib2mp3.py'
             mp3.tag.save()
-            print(key,':',self.description[key])
+            if debug: print(key,':',self.description[key])
 
 
 #==============================================================================
