@@ -12,6 +12,16 @@ import eyed3
 from tokenizer import MyTokenizer
 
 
+# acronyms to spell out
+acronyms = [
+    'LES',
+    'ALM',
+    'MYNN',
+]
+
+spelled_out_form = ['-'.join(list(acronym)) for acronym in acronyms]
+
+
 class BibtexLibrary(object):
     """Class that processes bibtex file"""
     def __init__(self,
@@ -47,8 +57,8 @@ class BibtexLibrary(object):
         # get rid of HTML tags
         s = BeautifulSoup(html.unescape(s),'html.parser').text
         # spell out common acronyms
-        s = s.replace('LES','L-E-S')
-        s = s.replace('ALM','A-L-M')
+        for acronym,spelledout in zip(acronyms,spelled_out_form):
+            s = s.replace(acronym,spelledout)
         return s
 
     def _process_bib_authors(self):
