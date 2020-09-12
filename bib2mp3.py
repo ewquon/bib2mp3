@@ -16,7 +16,8 @@ class BibtexLibrary(object):
     """Class that processes bibtex file"""
     def __init__(self,
                  bibfile,
-                 mp3dir=os.path.join(os.environ['HOME'],'Music','bib2mp3'),
+                 mp3dir=os.path.join(os.environ['HOME'],
+                                     'Music','Article Abstracts')
                 ):
         parser = BibTexParser(common_strings=True)
         parser.customization = convert_to_unicode
