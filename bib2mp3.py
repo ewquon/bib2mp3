@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 import os
 import numpy as np
+import html
+from bs4 import BeautifulSoup
 
 import bibtexparser
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.customization import convert_to_unicode
-
-import html
-from bs4 import BeautifulSoup
-
 import eyed3
+
+from tokenizer import MyTokenizer
 
 
 class BibtexLibrary(object):
@@ -203,7 +203,8 @@ class BibtexLibrary(object):
                 continue
             assert hasattr(self,'description'), \
                     'Need to run generate_descriptions'
-            tts = gTTS(text=self.description[key], lang=language, slow=False)
+            tts = gTTS(text=self.description[key], lang=language, slow=False,
+                       tokenizer_func=MyTokenizer)
             print('Writing',mp3file)
             tts.save(mp3file)
             # add metadata
@@ -214,7 +215,7 @@ class BibtexLibrary(object):
             mp3.tag.album = self.bibname
             mp3.tag.album_artist = 'bib2mp3.py'
             mp3.tag.save()
-            #print(key,':',self.description[key])
+            print(key,':',self.description[key])
 
 
 #==============================================================================
